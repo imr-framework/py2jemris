@@ -3,24 +3,28 @@
 # Gehua Tong
 # May 18, 2020
 
-from virtualscanner.server.simulation.py2jemris.coil2xml import coil2xml
-from virtualscanner.server.simulation.py2jemris.seq2xml import seq2xml
-from virtualscanner.server.simulation.py2jemris.sim_jemris import sim_jemris
-from virtualscanner.server.simulation.py2jemris.pulseq_jemris_simulator import simulate_pulseq_jemris, create_and_save_phantom
-from virtualscanner.server.simulation.py2jemris.recon_jemris import recon_jemris
-import virtualscanner.server.simulation.bloch.phantom as pht
-from virtualscanner.server.simulation.bloch.pulseq_library import make_pulseq_irse, make_pulseq_se_oblique
+from coil2xml import coil2xml
+from seq2xml import seq2xml
+from sim_jemris import sim_jemris
+from pulseq_jemris_simulator import simulate_pulseq_jemris, create_and_save_phantom
+from recon_jemris import recon_jemris
+import phantom as pht
+from pulseq_library import make_pulseq_irse, make_pulseq_se_oblique
+
 import numpy as np
 import matplotlib.pyplot as plt
 from pypulseq.Sequence.sequence import Sequence
 from scipy.io import loadmat, savemat
-from virtualscanner.utils.constants import SERVER_SIM_BLOCH_PY2JEMRIS_PATH
+
+
+#from virtualscanner.utils.constants import SERVER_SIM_BLOCH_PY2JEMRIS_PATH
+
 import os
 import h5py
 
 
-utest_path = str(SERVER_SIM_BLOCH_PY2JEMRIS_PATH / 'sim' / 'utest_outputs')
-sim_path = str(SERVER_SIM_BLOCH_PY2JEMRIS_PATH / 'sim')
+utest_path = 'sim/utest_outputs'
+sim_path = 'sim'
 
 
 def utest_coil2xml():
@@ -45,6 +49,7 @@ def utest_coil2xml():
     os.chdir(utest_path)
     print(os.system('dir'))
     out = os.system('jemris test_coil.xml')
+    os.chdir('../..')
     print(out)
 
 
@@ -81,6 +86,7 @@ def utest_seq2xml():
     print(os.system('dir'))
     out = os.system(f'jemris -x -d id=1 -f irse16_pulseq irse16_pulseq.xml')
     print(out)
+    os.chdir('../..')
 
     # Read sequence diagram and plot
     data = h5py.File(utest_path + '/irse16_pulseq.h5','r')
@@ -114,6 +120,8 @@ def utest_sim_jemris():
     os.chdir(sim_path)
     out = os.system('copy uniform.xml utest_outputs')
     print(out)
+    os.chdir('..')
+
     utest_phantom_output_h5()
 
     list_sim_orig = {'seq_xml': 'gre32.xml', 'pht_h5': 'cylindrical.h5', 'tx_xml':'uniform.xml',
@@ -122,6 +130,7 @@ def utest_sim_jemris():
     os.chdir(utest_path)
     savemat('data32_orig.mat',out)
     print('Data is saved in py2jemris/sim/utest_outputs/data32_orig.mat')
+    os.chdir('../..')
     return
 
 def utest_pulseq_sim():
@@ -129,8 +138,8 @@ def utest_pulseq_sim():
     # Demonstrates simulation pipeline using pulseq inputs
 
     # Define the same phantom
-    phantom_info = {'fov': 0.256, 'N': 15, 'type': 'cylindrical', 'dim': 2, 'dir': 'z'}
-    sps =  'se_fov256mm_Nf15_Np15_TE50ms_TR200ms_FA90deg.seq'
+    phantom_info = {'fov': 0.256, 'N': 15, 'type': 'cylindrical', 'dim': 2, 'dir': 'z', 'loc': 0}
+    sps =  'sim/utest_outputs/se_fov256mm_Nf15_Np15_TE50ms_TR200ms_FA90deg.seq'
     sim_name = 'utest_outputs'
     # Make sequence
     os.chdir(utest_path)
@@ -138,7 +147,7 @@ def utest_pulseq_sim():
                               enc='xyz', slice_locs=[0], write=True)
 
 
-    os.chdir(str(SERVER_SIM_BLOCH_PY2JEMRIS_PATH))
+    os.chdir('../..')
     simulate_pulseq_jemris(seq_path=sps, phantom_info=phantom_info, sim_name=sim_name,
                            coil_fov=0.256)
 
@@ -157,7 +166,7 @@ def utest_pulseq_sim():
 
 def utest_phantom_output_h5():
     # Creates a virtual scanner phantom and save it as an .h5 file (per JEMRIS standard)
-    phantom_info = {'fov': 0.256, 'N': 32, 'type': 'cylindrical', 'dim': 2, 'dir': 'z'}
+    phantom_info = {'fov': 0.256, 'N': 32, 'type': 'cylindrical', 'dim': 2, 'dir': 'z', 'loc': 0}
     create_and_save_phantom(phantom_info, out_folder=utest_path)
     return
 
@@ -168,5 +177,5 @@ if __name__ == '__main__':
     #utest_coil2xml() # Converts B1 map into .h5 and .xml files for JEMRIS
     #utest_phantom_output_h5() # Makes a virtual scanner phantom and converts it into .h5 format for JEMRIS
     #utest_seq2xml() # Makes a pypulseq sequence and converts it into .xml and .h5 files for JEMRIS
-    utest_sim_jemris() # Calls JEMRIS on command line using pre-made files
-    #utest_pulseq_sim() # Calls pipeline (INPUT: seq + phantom info + FOV ; OUTPUT: complex image space & k-space, images)
+    #utest_sim_jemris() # Calls JEMRIS on command line using pre-made files
+    utest_pulseq_sim() # Calls pipeline (INPUT: seq + phantom info + FOV ; OUTPUT: complex image space & k-space, images)

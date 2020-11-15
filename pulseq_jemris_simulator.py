@@ -5,20 +5,17 @@
 #         k-space trajectory (if noncartesian; flattened version (Nro_total, 3))
 import time
 import os
-from virtualscanner.server.simulation.py2jemris.sim_jemris import sim_jemris
-from virtualscanner.server.simulation.py2jemris.recon_jemris import read_jemris_output, recon_jemris
-from virtualscanner.server.simulation.py2jemris.coil2xml import coil2xml
-from virtualscanner.utils import constants
-from virtualscanner.server.simulation.py2jemris.seq2xml import seq2xml
+from sim_jemris import sim_jemris
+from recon_jemris import read_jemris_output, recon_jemris
+from coil2xml import coil2xml
+#from virtualscanner.utils import constants
+from seq2xml import seq2xml
 from pypulseq.Sequence.sequence import Sequence
-import virtualscanner.server.simulation.bloch.phantom as pht
+import phantom as pht
 import numpy as np
 import xml.etree.ElementTree as ET
-from virtualscanner.server.simulation.bloch.pulseq_library import make_pulseq_se_oblique,\
-    make_pulseq_gre_oblique, make_pulseq_irse_oblique
+from pulseq_library import make_pulseq_se_oblique,make_pulseq_gre_oblique, make_pulseq_irse_oblique
 from scipy.io import savemat, loadmat
-
-PY2JEMRIS_PATH = constants.SERVER_SIM_BLOCH_PY2JEMRIS_PATH
 
 def simulate_pulseq_jemris(seq_path, phantom_info, coil_fov,
                            tx='uniform', rx='uniform', # TODO add input that includes sequence info for
@@ -58,18 +55,19 @@ def simulate_pulseq_jemris(seq_path, phantom_info, coil_fov,
         sim_name = time.strftime("%Y%m%d%H%M%S")
 
     if env_option == 'local':
-        target_path = PY2JEMRIS_PATH / 'sim' / sim_name
+        target_path =  'sim\\' +  sim_name
     elif env_option == 'colab':
-        target_path = 'sim/' + sim_name
+        target_path = 'sim\\' + sim_name
 
     # Make target folder
-    dir_str = f'{str(PY2JEMRIS_PATH)}\\sim\\{sim_name}'
+    dir_str = f'sim\\{sim_name}'
     if not os.path.isdir(dir_str):
         os.system(f'mkdir {dir_str}')
 
     # Convert .seq to .xml
     seq = Sequence()
     seq.read(seq_path)
+    print(seq.get_block(1))
     seq_name = seq_path[seq_path.rfind('/')+1:seq_path.rfind('.seq')]
     seq2xml(seq, seq_name=seq_name, out_folder=str(target_path))
 
@@ -83,7 +81,10 @@ def simulate_pulseq_jemris(seq_path, phantom_info, coil_fov,
 
     # Save Tx as xml
     if tx == 'uniform':
-        os.system(f'copy sim\\{tx}.xml {str(target_path)}')
+        cp_command = f'copy {os.getcwd()}\\sim\\{tx}.xml {os.getcwd()}\\{str(target_path)}\\{tx}.xml'
+        print(cp_command)
+        a = os.system(cp_command)
+        print(a)
     elif tx == 'custom' and tx_maps is not None:
         coil2xml(b1maps=tx_maps, fov=coil_fov, name='custom_tx', out_folder=target_path)
         tx_filename = 'custom_tx.xml'
@@ -148,6 +149,7 @@ def create_and_save_phantom(phantom_info, out_folder):
     pht_type = phantom_info['type']
     pht_dim = phantom_info['dim']
     pht_dir = phantom_info['dir']
+    pht_loc = phantom_info['loc']
 
     sim_phantom = 0
 
@@ -166,7 +168,7 @@ def create_and_save_phantom(phantom_info, out_folder):
                                                 dir=pht_dir, loc=0)
     elif pht_type == 'cylindrical':
         print("Making cylindrical phantom")
-        sim_phantom = pht.makeCylindricalPhantom(dim=pht_dim, n=N, dir=pht_dir, loc=0)
+        sim_phantom = pht.makeCylindricalPhantom(dim=pht_dim, n=N, dir=pht_dir, loc=pht_loc)
 
     elif pht_type == 'custom':
         # Use a custom file!

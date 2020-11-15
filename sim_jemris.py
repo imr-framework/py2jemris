@@ -4,19 +4,20 @@
 
 
 
-from virtualscanner.server.simulation.py2jemris.seq2xml import seq2xml
-from virtualscanner.server.simulation.py2jemris.sim2xml import sim2xml
-from virtualscanner.server.simulation.py2jemris.recon_jemris import read_jemris_output
-from virtualscanner.server.simulation.py2jemris.coil2xml import coil2xml
+from seq2xml import seq2xml
+from sim2xml import sim2xml
+from recon_jemris import read_jemris_output
+from coil2xml import coil2xml
 import subprocess
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from virtualscanner.utils import constants
+
+#from virtualscanner.utils import constants
 import h5py
 import os
 
 # Paths
-PY2JEMRIS_SIM_PATH = constants.SERVER_SIM_BLOCH_PY2JEMRIS_PATH / 'sim'
+#PY2JEMRIS_SIM_PATH = constants.SERVER_SIM_BLOCH_PY2JEMRIS_PATH / 'sim'
 from scipy.io import savemat
 import time
 
@@ -139,7 +140,7 @@ def sim_jemris(list_sim_files=None, working_folder=None):
 
 
 
-from virtualscanner.server.simulation.py2jemris.recon_jemris import *
+from recon_jemris import *
 
 
 

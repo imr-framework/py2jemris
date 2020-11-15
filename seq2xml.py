@@ -251,18 +251,25 @@ def save_grad_library_info(seq, out_folder):
         for axis_ind, g_ind in enumerate([gx_ind, gy_ind, gz_ind]):
             # Only save a gradient file if ...(a) it has non-zero index
             #                                 (b) it is type 'grad', not 'trap'
-            #                             and (c) its index has not been processed
+            #      s                       and (c) its index has not been processed
             if g_ind != 0 and len(seq.grad_library.data[g_ind]) == 3 \
                 and g_ind not in processed_g_inds:
-
                 print(f'Adding Gradient Number {g_ind}')
-
                 this_block = seq.get_block(nb)
-
                 file_path_partial = f'grad_{int(g_ind)}.h5'
                 file_path_full = out_folder + '/' + file_path_partial
-                t_points = this_block.gx.t
-                g_shape = this_block.gx.waveform
+
+                #TODO make it work for x/y/z
+                if axis_ind == 0:
+                    t_points = this_block.gx.t
+                    g_shape = this_block.gx.waveform
+                elif axis_ind == 1:
+                    t_points = this_block.gy.t
+                    g_shape = this_block.gy.waveform
+                elif axis_ind == 2:
+                    t_points = this_block.gz.t
+                    g_shape = this_block.gz.waveform
+
                 N = len(t_points)
                 # Create file
                 f = h5py.File(file_path_full, 'a')

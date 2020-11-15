@@ -49,6 +49,5 @@ def sim2xml(sim_name="simu", seq="example.xml", phantom="sample.h5", Tx="uniform
 
 
 if __name__ == '__main__':
-
     sim2xml(seq="gre_jemris_seq2xml.xml", phantom="sample.h5", Tx="uniform.xml", Rx="uniform.xml",
             seq_name="Sequence", sample_name="Sample", out_folder_name="try_seq2xml")
