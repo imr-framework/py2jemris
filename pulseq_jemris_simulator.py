@@ -155,8 +155,8 @@ def create_and_save_phantom(phantom_info, out_folder):
 
     if pht_type == 'spherical':
         print('Making spherical phantom')
-        T1s = [1000]
-        T2s = [100]
+        T1s = [1000*1e-3]
+        T2s = [100*1e-3]
         PDs = [1]
         R = 0.8*FOV/2
         Rs = [R]

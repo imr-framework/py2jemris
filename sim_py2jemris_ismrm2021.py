@@ -7,23 +7,23 @@ from datetime import datetime
 
 # SPGR
 # Create phantom
-n = 64
+n = 16
 #phantom_info = {'fov': 0.25, 'N': n, 'type': 'cylindrical', 'dim': 2, 'dir': 'z', 'loc': 0}
 
 
 
-sps = 'sim/ismrm_abstract/spgr_64/spgr_gspoil_N64_Ns1_TE10ms_TR50ms_FA15deg_acq_111020.seq'
-sim_name = 'ismrm_abstract\\spgr_64'
-phtmaps = loadmat('sim/ismrm_abstract/spgr_64/pht2bottles.mat')
+sps = 'sim/ismrm_abstract/spgr_16_pht/spgr_gspoil_N16_Ns1_TE10ms_TR50ms_FA30deg_acq_111920.seq'
+sim_name = 'ismrm_abstract\\spgr_16_pht'
+phtmaps = loadmat('sim/ismrm_abstract/spgr_16_pht/ph2bottles16.mat')
 FOV = 0.25
-N = 64
+N = 16
 dr = FOV/N
 t1map = np.zeros((N,N,1))
-t1map[:,:,0] = 1e-3 * phtmaps['T1map']
+t1map[:,:,0] = 1e-3 * phtmaps['T1map16'] # Original is in ms; convert to seconds
 t2map = np.zeros((N,N,1))
-t2map[:,:,0] = 1e-3 * phtmaps['T2map']
+t2map[:,:,0] = 1e-3 * phtmaps['T2map16'] # Original is in ms; convert to seconds
 pdmap = np.zeros((N,N,1))
-pdmap[:,:,0] = phtmaps['PDmap']
+pdmap[:,:,0] = phtmaps['PDmap16']
 
 phantom_info = {'T1': t1map, 'T2': t2map, 'PD': pdmap,
                 'dr': dr, 'fov': FOV, 'N': N, 'type': 'custom', 'dim': 2, 'dir': 'z', 'loc': 0}

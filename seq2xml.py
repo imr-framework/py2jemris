@@ -64,7 +64,7 @@ def seq2xml(seq, seq_name, out_folder):
     # Use helper functions to save all RF and only arbitrary gradient info
     rf_shapes_path_dict = save_rf_library_info(seq, out_folder)
     grad_shapes_path_dict = save_grad_library_info(seq, out_folder)
-    print(grad_shapes_path_dict)
+    #print(grad_shapes_path_dict)
     #///////////////////////////////////////////////////////////////////////////
 
 
